@@ -166,11 +166,12 @@ function initDashboard() {
   const loadBtn = document.getElementById('load-data-btn');
   if (loadBtn) loadBtn.addEventListener('click', loadDashboardData);
 
-  // Defaults
-  const fromEl = document.getElementById('year-from');
-  const toEl   = document.getElementById('year-to');
-  if (fromEl) fromEl.value = 1990;
-  if (toEl)   toEl.value   = CURRENT_YEAR;
+  // Set "To" year to current year (From keeps its HTML-selected default)
+  const toEl = document.getElementById('year-to');
+  if (toEl) toEl.value = CURRENT_YEAR;
+
+  // Auto-load dashboard with default selections on startup
+  loadDashboardData();
 }
 
 async function loadDashboardData() {
@@ -184,7 +185,7 @@ async function loadDashboardData() {
 
   const country   = countryEl.value;
   const indicator = indicatorEl.value;
-  const from      = parseInt(fromEl?.value || 1990);
+  const from      = parseInt(fromEl?.value || 2000);
   const to        = parseInt(toEl?.value   || CURRENT_YEAR);
 
   if (!country || !indicator) return;
