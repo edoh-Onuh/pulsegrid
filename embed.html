@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseGrid Widget</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #050508; color: #fff; font-family: 'Inter', -apple-system, sans-serif; padding: 1rem; }
+    .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+    .widget-title { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .widget-badge { font-size: 0.6rem; padding: 0.2rem 0.5rem; border-radius: 20px; background: rgba(0,212,255,0.1); color: #00D4FF; border: 1px solid rgba(0,212,255,0.2); font-family: monospace; }
+    .widget-chart { width: 100%; height: 300px; }
+    .widget-footer { display: flex; justify-content: space-between; margin-top: 0.8rem; font-size: 0.65rem; color: rgba(255,255,255,0.4); font-family: monospace; }
+    .widget-footer a { color: #00D4FF; text-decoration: none; }
+    .widget-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.8rem; }
+    .widget-metric { background: rgba(255,255,255,0.04); padding: 0.5rem; border-radius: 6px; text-align: center; }
+    .widget-metric-val { font-size: 1rem; font-weight: 700; color: #00D4FF; }
+    .widget-metric-label { font-size: 0.6rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; }
+    .widget-loading { display: flex; align-items: center; justify-content: center; height: 300px; color: rgba(255,255,255,0.5); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="widget-header">
+    <span class="widget-title" id="widget-title">Loading...</span>
+    <a href="https://pulsegrid-app.netlify.app" target="_blank" class="widget-badge">PulseGrid</a>
+  </div>
+  <div class="widget-metrics" id="widget-metrics"></div>
+  <div class="widget-chart">
+    <canvas id="widget-chart-canvas"></canvas>
+    <div class="widget-loading" id="widget-loading">Connecting to World Bank API...</div>
+  </div>
+  <div class="widget-footer">
+    <span>Data: World Bank · CC BY 4.0</span>
+    <a href="https://pulsegrid-app.netlify.app" target="_blank">Explore full dashboard →</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const country = params.get('country') || 'GBR';
+    const indicator = params.get('indicator') || 'NY.GDP.MKTP.CD';
+    const from = params.get('from') || 2000;
+    const to = params.get('to') || new Date().getFullYear();
+
+    const API = 'https://api.worldbank.org/v2';
+
+    async function loadWidget() {
+      try {
+        const url = `${API}/country/${country}/indicator/${indicator}?format=json&per_page=500&date=${from}:${to}&source=2`;
+        const res = await fetch(url);
+        const [meta, data] = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) throw new Error('No data');
+
+        const series = data
+          .filter(d => d.value !== null)
+          .map(d => ({ year: parseInt(d.date), value: d.value }))
+          .sort((a, b) => a.year - b.year);
+
+        const countryName = data[0]?.country?.value || country;
+        const indName = data[0]?.indicator?.value || indicator;
+
+        document.getElementById('widget-title').textContent = `${indName} — ${countryName}`;
+
+        // Metrics
+        const latest = series[series.length - 1];
+        const first = series[0];
+        const change = first.value !== 0 ? ((latest.value - first.value) / Math.abs(first.value) * 100).toFixed(1) : 'N/A';
+        document.getElementById('widget-metrics').innerHTML = `
+          <div class="widget-metric"><div class="widget-metric-val">${formatVal(latest.value)}</div><div class="widget-metric-label">Latest (${latest.year})</div></div>
+          <div class="widget-metric"><div class="widget-metric-val">${change}%</div><div class="widget-metric-label">Period Change</div></div>
+          <div class="widget-metric"><div class="widget-metric-val">${series.length}</div><div class="widget-metric-label">Data Points</div></div>
+        `;
+
+        // Chart
+        document.getElementById('widget-loading').style.display = 'none';
+        new Chart(document.getElementById('widget-chart-canvas'), {
+          type: 'line',
+          data: {
+            labels: series.map(d => d.year),
+            datasets: [{
+              data: series.map(d => d.value),
+              borderColor: '#00D4FF', borderWidth: 2,
+              fill: true, backgroundColor: 'rgba(0,212,255,0.08)',
+              pointRadius: 0, tension: 0.4,
+            }],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } } },
+              y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } } },
+            },
+          },
+        });
+      } catch (err) {
+        document.getElementById('widget-loading').textContent = 'Failed to load data.';
+      }
+    }
+
+    function formatVal(v) {
+      if (Math.abs(v) >= 1e12) return (v / 1e12).toFixed(1) + 'T';
+      if (Math.abs(v) >= 1e9) return (v / 1e9).toFixed(1) + 'B';
+      if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+      return v.toFixed(2);
+    }
+
+    loadWidget();
+  </script>
+</body>
+</html>

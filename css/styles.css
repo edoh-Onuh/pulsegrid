@@ -1390,3 +1390,743 @@ body::before {
 }
 .skeleton-text { height: 1rem; margin-bottom: 0.5rem; border-radius: 4px; }
 .skeleton-chart { height: 200px; margin: 1rem; }
+
+/* ============================================================
+   AI INSIGHTS — NARRATIVE REPORT
+   ============================================================ */
+.insights-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+}
+.insights-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.insights-controls label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.narrative-report {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.narrative-report::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary, #6366f1));
+}
+.narrative-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.narrative-executive {
+  background: rgba(99, 102, 241, 0.06);
+  border-left: 3px solid var(--accent);
+  padding: 1.25rem 1.5rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+.narrative-section {
+  margin-bottom: 1.5rem;
+}
+.narrative-heading {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.narrative-heading::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.narrative-body {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+.narrative-findings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.narrative-finding {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  position: relative;
+  padding-left: 2rem;
+}
+.narrative-finding::before {
+  content: '→';
+  position: absolute;
+  left: 0.75rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.narrative-outlook {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+.narrative-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-tertiary, #888);
+}
+#narrative-empty,
+#causal-empty,
+#recession-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+.hidden { display: none !important; }
+
+/* ============================================================
+   AI INSIGHTS — CAUSAL MATRIX
+   ============================================================ */
+.causal-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  color: var(--text-primary);
+}
+#causal-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+#causal-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#causal-checkboxes label:hover {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.05);
+}
+#causal-checkboxes input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+#causal-grid {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+#causal-grid table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.82rem;
+}
+.causal-corner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 120px;
+}
+.causal-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.6rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  min-width: 90px;
+}
+.causal-row-label {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.causal-cell {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: center;
+  min-width: 90px;
+  transition: all 0.2s;
+}
+.causal-cell.sig {
+  background: rgba(34, 197, 94, 0.1);
+}
+.causal-cell.non-sig {
+  background: var(--card-bg);
+}
+.causal-cell.self {
+  background: var(--surface);
+}
+.causal-val {
+  font-weight: 700;
+  display: block;
+  font-size: 0.82rem;
+}
+.causal-sig {
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: block;
+  margin-top: 2px;
+}
+.causal-sig.yes { color: #22c55e; }
+.causal-sig.no  { color: var(--text-tertiary, #888); }
+.causal-p {
+  font-size: 0.68rem;
+  color: var(--text-tertiary, #888);
+  display: block;
+}
+#causal-insights {
+  margin-top: 1.5rem;
+}
+.causal-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.causal-insight:last-child { border-bottom: 0; }
+.causal-arrow {
+  font-size: 1rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   RECESSION PREDICTOR
+   ============================================================ */
+.recession-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}
+.recession-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.recession-results {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+}
+.gauge-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 1rem;
+}
+.gauge-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 12;
+}
+.gauge-fill {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease, stroke 0.5s;
+}
+.gauge-center {
+  text-anchor: middle;
+}
+.gauge-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  fill: var(--text-primary);
+}
+.gauge-label {
+  font-size: 0.82rem;
+  fill: var(--text-secondary);
+}
+.gauge-meta {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+.gauge-risk-badge {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gauge-risk-badge.low    { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.gauge-risk-badge.medium { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+.gauge-risk-badge.high   { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.gauge-risk-badge.severe { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+.recession-alert-box {
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border-left: 4px solid;
+}
+.recession-alert-box.low    { background: rgba(34, 197, 94, 0.06); border-color: #22c55e; color: #22c55e; }
+.recession-alert-box.medium { background: rgba(234, 179, 8, 0.06); border-color: #eab308; color: #eab308; }
+.recession-alert-box.high   { background: rgba(249, 115, 22, 0.06); border-color: #f97316; color: #f97316; }
+.recession-alert-box.severe { background: rgba(239, 68, 68, 0.06); border-color: #ef4444; color: #ef4444; }
+
+.recession-signals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.recession-signal {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.recession-signal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.recession-signal-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.recession-signal-value {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.recession-signal-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.recession-signal-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+.recession-signal-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  margin-top: 0.4rem;
+  color: var(--text-tertiary, #888);
+}
+
+.recession-chart-wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+.recession-chart-wrap h4 {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.recession-proj-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.recession-proj-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.recession-proj-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.recession-proj-sub {
+  font-size: 0.78rem;
+  color: var(--text-tertiary, #888);
+  margin-top: 0.3rem;
+}
+
+/* ============================================================
+   EMBED MODAL
+   ============================================================ */
+.embed-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.embed-modal {
+  background: var(--card-bg);
+  border-radius: calc(var(--radius) * 1.5);
+  border: 1px solid var(--border);
+  width: min(640px, 90vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+}
+.embed-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.embed-modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.embed-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  line-height: 1;
+  padding: 0.25rem;
+}
+.embed-modal-close:hover { color: var(--text-primary); }
+.embed-modal-body {
+  padding: 1.5rem;
+}
+.embed-preview {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.embed-preview iframe {
+  width: 100%;
+  height: 320px;
+  border: 0;
+}
+.embed-code-section {
+  margin-bottom: 1.25rem;
+}
+.embed-code-section label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.embed-code-wrap {
+  position: relative;
+}
+.embed-code {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  resize: none;
+  overflow-x: auto;
+  white-space: pre;
+  min-height: 60px;
+}
+.embed-copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: calc(var(--radius) * 0.75);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.embed-copy-btn:hover { filter: brightness(1.1); }
+.embed-copy-btn.copied {
+  background: #22c55e;
+}
+
+/* ============================================================
+   RESPONSIVE — NEW SECTIONS
+   ============================================================ */
+@media (max-width: 860px) {
+  .insights-layout,
+  .recession-layout {
+    grid-template-columns: 1fr;
+  }
+  .recession-results {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   INSIGHTS & RECESSION TAB STYLES
+   ============================================================ */
+.narrative-output-panel {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.narrative-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.narrative-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #00D4FF;
+  margin-bottom: 0.5rem;
+}
+
+.narrative-meta {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.narrative-executive {
+  background: rgba(0,212,255,0.05);
+  padding: 1.2rem;
+  border-left: 3px solid #00D4FF;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.9);
+}
+
+.narrative-key-findings {
+  margin-bottom: 1.5rem;
+}
+
+.narrative-key-findings h4,
+.narrative-outlook h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 0.8rem;
+}
+
+.narrative-key-findings ul {
+  list-style: none;
+  padding: 0;
+}
+
+.narrative-key-findings li {
+  padding: 0.6rem 0 0.6rem 1.5rem;
+  position: relative;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
+}
+
+.narrative-key-findings li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #00D4FF;
+  font-weight: 700;
+}
+
+.narrative-section-block {
+  margin-bottom: 1.5rem;
+}
+
+.narrative-section-block h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 0.5rem;
+}
+
+.narrative-section-block p {
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+}
+
+.narrative-outlook {
+  background: rgba(0,212,255,0.04);
+  padding: 1.2rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.narrative-footer {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Recession Dashboard */
+.recession-dashboard {
+  margin-top: 2rem;
+}
+
+.recession-gauge-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(0,212,255,0.15);
+}
+
+.recession-gauge {
+  width: 200px;
+  height: 120px;
+  margin-bottom: 1rem;
+}
+
+.recession-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.recession-status-icon {
+  font-size: 1.4rem;
+}
+
+.status-low { color: #00D4FF; }
+.status-medium { color: #ffaa00; }
+.status-high { color: #ff4444; }
+
+.recession-indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.recession-indicator-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.rec-ind-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.rec-ind-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+}
+
+.rec-ind-signal {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.signal-low { background: rgba(0,212,255,0.15); color: #00D4FF; }
+.signal-medium { background: rgba(255,170,0,0.15); color: #ffaa00; }
+.signal-high { background: rgba(255,68,68,0.15); color: #ff4444; }
+
+.rec-ind-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.rec-ind-delta {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+}
+
+.recession-time-series {
+  background: rgba(255,255,255,0.02);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0,212,255,0.15);
+  margin-bottom: 1.5rem;
+}
+
+.recession-alerts {
+  background: rgba(255,170,0,0.05);
+  padding: 1.2rem;
+  border-left: 3px solid #ffaa00;
+  border-radius: 6px;
+}

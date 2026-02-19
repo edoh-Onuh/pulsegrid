@@ -75,6 +75,8 @@
     <li><a href="#correlation" class="nav-link" data-section="correlation">Correlation</a></li>
     <li><a href="#anomaly" class="nav-link" data-section="anomaly">Anomalies</a></li>
     <li><a href="#compare" class="nav-link" data-section="compare">Compare</a></li>
+    <li><a href="#insights" class="nav-link" data-section="insights">Insights</a></li>
+    <li><a href="#recession" class="nav-link" data-section="recession">Recession</a></li>
     <li><a href="#pipeline" class="nav-link" data-section="pipeline">Pipeline</a></li>
   </ul>
 
@@ -95,6 +97,8 @@
   <a href="#correlation" class="nav-overlay-link">Correlation</a>
   <a href="#anomaly" class="nav-overlay-link">Anomalies</a>
   <a href="#compare" class="nav-overlay-link">Compare</a>
+  <a href="#insights" class="nav-overlay-link">Insights</a>
+  <a href="#recession" class="nav-overlay-link">Recession</a>
   <a href="#pipeline" class="nav-overlay-link">Pipeline</a>
   <a href="https://edon-tech.netlify.app/case-studies.html" class="nav-overlay-cta" target="_blank" rel="noopener noreferrer">Built by EDON ↗</a>
 </div>
@@ -138,7 +142,7 @@
           <span class="hstat-label">Years of Data</span>
         </div>
         <div class="hstat">
-          <span class="hstat-val" id="hs-models">4</span>
+          <span class="hstat-val" id="hs-models">7</span>
           <span class="hstat-label">ML Models Running</span>
         </div>
       </div>
@@ -264,6 +268,8 @@
           <button class="chart-btn" id="chart-bar-btn" aria-label="Bar chart">Bar</button>
           <button class="chart-btn" id="chart-area-btn" aria-label="Area chart">Area</button>
           <button class="btn-export" id="export-csv-btn" aria-label="Export data as CSV" onclick="PG.exportCSV()">↓ CSV</button>
+          <button class="btn-export" id="embed-btn" aria-label="Embed this chart" onclick="PG.showEmbedModal()">⟨/⟩ Embed</button>
+          <button class="btn-export" id="embed-btn" aria-label="Embed this chart" onclick="PG.showEmbedModal()">⟨/⟩ Embed</button>
         </div>
       </div>
       <div class="chart-wrap">
@@ -603,13 +609,303 @@
   </div>
 </section>
 
+
+<!-- ═══════════════════════════════════════════
+     AI INSIGHTS — Narrative + Causal
+═══════════════════════════════════════════ -->
+<section id="insights" class="section-wrap">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">06 — AI Insights Engine</span>
+      <h2 class="section-title">Narrative <span class="accent">Intelligence</span></h2>
+      <p class="section-lead">AI-generated analytical reports and Granger causal inference — transforming raw data into actionable economic intelligence. No external AI API required.</p>
+    </header>
+
+    <div class="insights-layout">
+      <!-- Narrative Controls -->
+      <div class="insights-controls panel">
+        <h3 class="panel-title">Generate Report</h3>
+        <div class="param-row">
+          <label class="param-label" for="narr-country">Country</label>
+          <div class="select-wrap">
+            <select id="narr-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="narr-indicator">Indicator</label>
+          <div class="select-wrap">
+            <select id="narr-indicator" class="control-select">
+              <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
+              <option value="NY.GDP.PCAP.CD">GDP per capita (US$)</option>
+              <option value="FP.CPI.TOTL.ZG">Inflation rate (%)</option>
+              <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
+              <option value="NY.GDP.MKTP.KD.ZG">GDP growth (%)</option>
+              <option value="SP.POP.TOTL">Population</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary w-full" id="run-narrative-btn">Generate Narrative ↗</button>
+
+        <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+          <h3 class="panel-title">Causal Inference</h3>
+          <p class="panel-sub">Granger causality test: does X help predict Y?</p>
+          <div class="param-row">
+            <label class="param-label" for="causal-country">Country</label>
+            <div class="select-wrap">
+              <select id="causal-country" class="control-select country-select-target"></select>
+            </div>
+          </div>
+          <div class="corr-checkboxes" id="causal-checkboxes">
+            <label class="corr-check"><input type="checkbox" value="NY.GDP.MKTP.KD.ZG" checked /> GDP growth</label>
+            <label class="corr-check"><input type="checkbox" value="FP.CPI.TOTL.ZG" checked /> Inflation</label>
+            <label class="corr-check"><input type="checkbox" value="SL.UEM.TOTL.ZS" checked /> Unemployment</label>
+            <label class="corr-check"><input type="checkbox" value="NE.EXP.GNFS.ZS" /> Exports</label>
+            <label class="corr-check"><input type="checkbox" value="GC.DOD.TOTL.GD.ZS" /> Govt debt</label>
+            <label class="corr-check"><input type="checkbox" value="IT.NET.USER.ZS" /> Internet users</label>
+          </div>
+          <button class="btn btn-primary w-full" id="run-causal-btn">Run Granger Test ↗</button>
+        </div>
+      </div>
+
+      <!-- Output area -->
+      <div class="insights-output">
+        <!-- Narrative report -->
+        <div class="narrative-report panel" id="narrative-output">
+          <div class="chart-empty-state" id="narrative-empty">
+            <div class="chart-empty-icon" aria-hidden="true">🤖</div>
+            <p>Select a country &amp; indicator and click <strong>Generate Narrative</strong> to produce an AI report.</p>
+          </div>
+        </div>
+
+        <!-- Causal matrix -->
+        <div class="chart-panel" style="margin-top:1.5rem;">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="causal-title">Granger Causality Matrix</h3>
+              <p class="chart-panel-sub">Rows cause columns · Shaded = significant (p &lt; 0.05)</p>
+            </div>
+          </div>
+          <div class="heatmap-wrap">
+            <div class="chart-empty-state" id="causal-empty">
+              <div class="chart-empty-icon" aria-hidden="true">🔗</div>
+              <p>Select indicators and click <strong>Run Granger Test</strong></p>
+            </div>
+            <div id="causal-grid" class="heatmap-grid" role="table" aria-label="Causal inference matrix"></div>
+          </div>
+        </div>
+        <div class="corr-insights panel" style="margin-top:1rem;" id="causal-insights-panel">
+          <h4 class="panel-title">Causal Links Detected</h4>
+          <ul class="insight-list" id="causal-insights"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RECESSION PREDICTOR
+═══════════════════════════════════════════ -->
+<section id="recession" class="section-wrap alt-bg">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">07 — Recession Predictor</span>
+      <h2 class="section-title">Predictive <span class="accent">Alerts</span></h2>
+      <p class="section-lead">Composite leading indicator engine that combines GDP growth, unemployment, inflation, trade, and FDI signals to estimate recession probability — with 12-month projections.</p>
+    </header>
+
+    <div class="recession-layout">
+      <div class="recession-controls panel">
+        <h3 class="panel-title">Country Analysis</h3>
+        <div class="param-row">
+          <label class="param-label" for="recess-country">Country</label>
+          <div class="select-wrap">
+            <select id="recess-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <button class="btn btn-primary w-full" id="run-recession-btn">Predict Recession Risk ↗</button>
+
+        <div id="recession-alert" class="hidden" style="margin-top:1rem;"></div>
+
+        <div id="recession-signals" style="margin-top:1.5rem;"></div>
+
+        <div id="recession-projection" style="margin-top:1.5rem;"></div>
+      </div>
+
+      <div class="recession-output">
+        <div id="recession-gauge" class="recession-gauge-wrap"></div>
+        <div class="chart-panel" style="margin-top:1.5rem;">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="recession-chart-title">Recession Probability Timeline</h3>
+              <p class="chart-panel-sub">Composite leading indicator (CLI) · Annual assessment</p>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap--tall">
+            <canvas id="recession-chart" aria-label="Recession probability chart"></canvas>
+            <div class="chart-empty-state" id="recession-empty">
+              <div class="chart-empty-icon" aria-hidden="true">📉</div>
+              <p>Select a country and click <strong>Predict Recession Risk</strong></p>
+            </div>
+          </div>
+        </div>
+        <div id="recession-output" class="narrative-report panel" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     AI INSIGHTS — Narrative + Causal
+═══════════════════════════════════════════ -->
+<section id="insights" class="section-wrap">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">06 — AI Insights Engine</span>
+      <h2 class="section-title">Narrative <span class="accent">Intelligence</span></h2>
+      <p class="section-lead">AI-generated analytical reports and Granger causal inference — transforming raw data into actionable economic intelligence. No external AI API required.</p>
+    </header>
+
+    <div class="insights-layout">
+      <!-- Narrative Controls -->
+      <div class="insights-controls panel">
+        <h3 class="panel-title">Generate Report</h3>
+        <div class="param-row">
+          <label class="param-label" for="narr-country">Country</label>
+          <div class="select-wrap">
+            <select id="narr-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="narr-indicator">Indicator</label>
+          <div class="select-wrap">
+            <select id="narr-indicator" class="control-select">
+              <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
+              <option value="NY.GDP.PCAP.CD">GDP per capita (US$)</option>
+              <option value="FP.CPI.TOTL.ZG">Inflation rate (%)</option>
+              <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
+              <option value="NY.GDP.MKTP.KD.ZG">GDP growth (%)</option>
+              <option value="SP.POP.TOTL">Population</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary w-full" id="run-narrative-btn">Generate Narrative ↗</button>
+
+        <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+          <h3 class="panel-title">Causal Inference</h3>
+          <p class="panel-sub">Granger causality test: does X help predict Y?</p>
+          <div class="param-row">
+            <label class="param-label" for="causal-country">Country</label>
+            <div class="select-wrap">
+              <select id="causal-country" class="control-select country-select-target"></select>
+            </div>
+          </div>
+          <div class="corr-checkboxes" id="causal-checkboxes">
+            <label class="corr-check"><input type="checkbox" value="NY.GDP.MKTP.KD.ZG" checked /> GDP growth</label>
+            <label class="corr-check"><input type="checkbox" value="FP.CPI.TOTL.ZG" checked /> Inflation</label>
+            <label class="corr-check"><input type="checkbox" value="SL.UEM.TOTL.ZS" checked /> Unemployment</label>
+            <label class="corr-check"><input type="checkbox" value="NE.EXP.GNFS.ZS" /> Exports</label>
+            <label class="corr-check"><input type="checkbox" value="GC.DOD.TOTL.GD.ZS" /> Govt debt</label>
+            <label class="corr-check"><input type="checkbox" value="IT.NET.USER.ZS" /> Internet users</label>
+          </div>
+          <button class="btn btn-primary w-full" id="run-causal-btn">Run Granger Test ↗</button>
+        </div>
+      </div>
+
+      <!-- Output area -->
+      <div class="insights-output">
+        <!-- Narrative report -->
+        <div class="narrative-report panel" id="narrative-output">
+          <div class="chart-empty-state" id="narrative-empty">
+            <div class="chart-empty-icon" aria-hidden="true">🤖</div>
+            <p>Select a country &amp; indicator and click <strong>Generate Narrative</strong> to produce an AI report.</p>
+          </div>
+        </div>
+
+        <!-- Causal matrix -->
+        <div class="chart-panel" style="margin-top:1.5rem;">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="causal-title">Granger Causality Matrix</h3>
+              <p class="chart-panel-sub">Rows cause columns · Shaded = significant (p &lt; 0.05)</p>
+            </div>
+          </div>
+          <div class="heatmap-wrap">
+            <div class="chart-empty-state" id="causal-empty">
+              <div class="chart-empty-icon" aria-hidden="true">🔗</div>
+              <p>Select indicators and click <strong>Run Granger Test</strong></p>
+            </div>
+            <div id="causal-grid" class="heatmap-grid" role="table" aria-label="Causal inference matrix"></div>
+          </div>
+        </div>
+        <div class="corr-insights panel" style="margin-top:1rem;" id="causal-insights-panel">
+          <h4 class="panel-title">Causal Links Detected</h4>
+          <ul class="insight-list" id="causal-insights"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RECESSION PREDICTOR
+═══════════════════════════════════════════ -->
+<section id="recession" class="section-wrap alt-bg">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">07 — Recession Predictor</span>
+      <h2 class="section-title">Predictive <span class="accent">Alerts</span></h2>
+      <p class="section-lead">Composite leading indicator engine that combines GDP growth, unemployment, inflation, trade, and FDI signals to estimate recession probability — with 12-month projections.</p>
+    </header>
+
+    <div class="recession-layout">
+      <div class="recession-controls panel">
+        <h3 class="panel-title">Country Analysis</h3>
+        <div class="param-row">
+          <label class="param-label" for="recess-country">Country</label>
+          <div class="select-wrap">
+            <select id="recess-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <button class="btn btn-primary w-full" id="run-recession-btn">Predict Recession Risk ↗</button>
+
+        <div id="recession-alert" class="hidden" style="margin-top:1rem;"></div>
+
+        <div id="recession-signals" style="margin-top:1.5rem;"></div>
+
+        <div id="recession-projection" style="margin-top:1.5rem;"></div>
+      </div>
+
+      <div class="recession-output">
+        <div id="recession-gauge" class="recession-gauge-wrap"></div>
+        <div class="chart-panel" style="margin-top:1.5rem;">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="recession-chart-title">Recession Probability Timeline</h3>
+              <p class="chart-panel-sub">Composite leading indicator (CLI) · Annual assessment</p>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap--tall">
+            <canvas id="recession-chart" aria-label="Recession probability chart"></canvas>
+            <div class="chart-empty-state" id="recession-empty">
+              <div class="chart-empty-icon" aria-hidden="true">📉</div>
+              <p>Select a country and click <strong>Predict Recession Risk</strong></p>
+            </div>
+          </div>
+        </div>
+        <div id="recession-output" class="narrative-report panel" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════════════════════════════
      PIPELINE VISUALISER
 ═══════════════════════════════════════════ -->
 <section id="pipeline" class="section-wrap alt-bg">
   <div class="container">
     <header class="section-header">
-      <span class="eyebrow">06 — Data Engineering</span>
+      <span class="eyebrow">08 — Data Engineering</span>
       <h2 class="section-title">The ETL <span class="accent">Pipeline</span></h2>
       <p class="section-lead">Every chart in PulseGrid is the output of a transparent, observable data engineering pipeline. This is the architecture — from raw API response to rendered intelligence.</p>
     </header>
@@ -723,11 +1019,147 @@
         <span class="tech-pill">Pearson Correlation</span>
         <span class="tech-pill">Z-Score Detection</span>
         <span class="tech-pill">IQR Fence</span>
+        <span class="tech-pill">Granger Causality</span>
+        <span class="tech-pill">Narrative Intelligence</span>
+        <span class="tech-pill">Recession Predictor</span>
+        <span class="tech-pill">Embeddable Widgets</span>
+        <span class="tech-pill">Granger Causality</span>
+        <span class="tech-pill">Narrative Intelligence</span>
+        <span class="tech-pill">Recession Predictor</span>
+        <span class="tech-pill">Embeddable Widgets</span>
         <span class="tech-pill">Linear Interpolation</span>
         <span class="tech-pill">CSS Grid + Flexbox</span>
         <span class="tech-pill">IntersectionObserver</span>
         <span class="tech-pill">ResizeObserver</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RECESSION PREDICTOR
+════════════════════════════════════════════ -->
+<section id="recession" class="section-wrap" data-reveal>
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">05 — Predictive Analytics</span>
+      <h2 class="section-title">Recession <span class="accent">Risk</span></h2>
+      <p class="section-lead">Composite Leading Indicator (CLI) engine. Combines GDP growth, unemployment, inflation, trade balance, and debt signals to estimate recession probability.</p>
+    </header>
+
+    <div class="controls-bar" role="group" aria-label="Recession predictor controls">
+      <div class="control-group">
+        <label class ="control-label" for="recession-country">Country</label>
+        <div class="select-wrap">
+          <select id="recession-country" class="control-select country-select-target">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="run-recession-btn">Calculate Recession Risk</button>
+    </div>
+
+    <div class="recession-dashboard" id="recession-dashboard" style="display:none;">
+      <div class="recession-gauge-panel">
+        <div class="recession-gauge" id="recession-gauge">
+          <svg viewBox="0 0 200 120" class="gauge-svg">
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="20" stroke-linecap="round"/>
+            <path id="gauge-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00D4FF" stroke-width="20" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" style="transition: stroke-dashoffset 1.5s ease;"/>
+            <circle cx="100" cy="100" r="60" fill="rgba(0,0,0,0.4)"/>
+            <text x="100" y="90" text-anchor="middle" font-size="32" font-weight="700" fill="#00D4FF" id="gauge-value">0%</text>
+            <text x="100" y="110" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.5)" id="gauge-label">RECESSION RISK</text>
+          </svg>
+        </div>
+        <div class="recession-status" id="recession-status">
+          <span class="recession-status-icon" id="recession-icon">●</span>
+          <span class="recession-status-text" id="recession-text">Select a country</span>
+        </div>
+      </div>
+
+      <div class="recession-indicators-grid" id="recession-indicators"></div>
+
+      <div class="recession-time-series">
+        <h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: rgba(255,255,255,0.7);">Historical Recession Probability</h4>
+        <canvas id="recession-chart" style="max-width: 100%; height: 280px;"></canvas>
+      </div>
+
+      <div class="recession-alerts" id="recession-alerts"></div>
+    </div>
+
+    <div class="empty-state" id="recession-empty">
+      <div class="empty-state-icon">📊</div>
+      <p>Select a country and click "Calculate Recession Risk" to see a comprehensive multi-indicator recession probability analysis.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     INSIGHTS — AI NARRATIVE REPORTS
+═══════════════════════════════════════════ -->
+<section id="insights" class="section-wrap" data-reveal>
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">06 — AI Intelligence</span>
+      <h2 class="section-title">Narrative <span class="accent">Insights</span></h2>
+      <p class="section-lead">AI-powered economic narrative generation. Rule-based NLG engine produces human-readable analytical reports from raw data — no external API required.</p>
+    </header>
+
+    <div class="controls-bar" role="group" aria-label="Insights controls">
+      <div class="control-group">
+        <label class="control-label" for="insights-country">Country</label>
+        <div class="select-wrap">
+          <select id="insights-country" class="control-select country-select-target">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="insights-indicator">Indicator</label>
+        <div class="select-wrap">
+          <select id="insights-indicator" class="control-select">
+            <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
+            <option value="NY.GDP.MKTP.KD.ZG">GDP Growth (%)</option>
+            <option value="NY.GDP.PCAP.CD">GDP per Capita</option>
+            <option value="FP.CPI.TOTL.ZG">Inflation Rate</option>
+            <option value="SL.UEM.TOTL.ZS">Unemployment</option>
+            <option value="SP.POP.TOTL">Population</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="generate-insights-btn">Generate Narrative Report</button>
+    </div>
+
+    <div class="narrative-output-panel" id="narrative-output" style="display:none;">
+      <div class="narrative-header">
+        <h3 class="narrative-title" id="narrative-title">Economic Intelligence Report</h3>
+        <div class="narrative-meta">
+          <span id="narrative-country"></span> · <span id="narrative-indicator"></span> · Generated <span id="narrative-timestamp"></span>
+        </div>
+      </div>
+
+      <div class="narrative-executive" id="narrative-executive"></div>
+
+      <div class="narrative-key-findings">
+        <h4>🎯 Key Findings</h4>
+        <ul id="narrative-findings"></ul>
+      </div>
+
+      <div class="narrative-sections" id="narrative-sections"></div>
+
+      <div class="narrative-outlook">
+        <h4>🔮 Outlook</h4>
+        <p id="narrative-outlook-text"></p>
+      </div>
+
+      <div class="narrative-footer">
+        <button class="btn btn-ghost btn-sm" onclick="alert('PDF export coming soon')">📄 Export as PDF</button>
+        <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('narrative-output').innerText).then(() => alert('Copied to clipboard!'))">📋 Copy to Clipboard</button>
+      </div>
+    </div>
+
+    <div class="empty-state" id="insights-empty">
+      <div class="empty-state-icon">🤖</div>
+      <p>Select a country and indicator, then click "Generate Narrative Report" to produce an AI-powered economic intelligence analysis.</p>
     </div>
   </div>
 </section>
@@ -793,6 +1225,10 @@
 <script src="js/pipeline.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/narrative.js"></script>
+<script src="js/causal.js"></script>
+<script src="js/recession.js"></script>
+<script src="js/embed.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
