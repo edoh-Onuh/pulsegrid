@@ -1,15 +1,15 @@
 <div align="center">
 
-# 🌐 PulseGrid
+# PulseGrid
 
-**A Zero-Dependency Data Science Platform in the Browser**
+**Browser-Native Economic Intelligence Engine**
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge)](https://pulsegrid-app.netlify.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 [![JavaScript](https://img.shields.io/badge/vanilla-JS%20ES2023-yellow?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![World Bank API](https://img.shields.io/badge/data-World%20Bank%20API-0071bc?style=for-the-badge)](https://data.worldbank.org)
 
-*Real-time macroeconomic analytics, AI-powered narrative intelligence, causal inference, and recession prediction — all running client-side with zero npm dependencies.*
+*Real-time macroeconomic analytics, AI-powered narrative intelligence, Granger causality inference, and recession prediction — all running client-side with zero npm dependencies.*
 
 [**Live Demo**](https://pulsegrid-app.netlify.app) · [**Blog Post**](docs/blog.md) · [**Contributing**](CONTRIBUTING.md)
 
@@ -17,160 +17,218 @@
 
 ---
 
-## ⚡ Why PulseGrid?
+## Why PulseGrid?
 
-Most data science tools require Python backends, cloud compute, or heavy frameworks. **PulseGrid proves that serious analytics can run entirely in the browser** — with hand-rolled statistical engines, real-time data pipelines, and AI-powered insights, all in vanilla JavaScript.
+Most data science tools require Python backends, cloud compute, or heavy frameworks. **PulseGrid proves that serious analytics can run entirely in the browser** — with hand-rolled statistical engines, a real-time ETL pipeline, and AI-generated insights, all in vanilla JavaScript.
 
-| Feature | Traditional Stack | PulseGrid |
+| Concern | Traditional Stack | PulseGrid |
 |---------|------------------|-----------|
 | Runtime | Python + pandas + scikit-learn | Vanilla JS ES2023 |
-| Data Pipeline | Airflow / Prefect | IndexedDB + Service Worker cache |
+| Data Pipeline | Airflow / Prefect | IndexedDB + 6 h TTL cache |
 | ML Models | TensorFlow / statsmodels | Hand-rolled Holt-Winters, Granger causality |
 | AI Reports | OpenAI API ($$$) | Rule-based NLG engine (zero cost) |
 | Deployment | Docker + K8s | Static HTML on CDN |
-| Dependencies | 200+ npm packages | 1 CDN (Chart.js) |
+| Dependencies | 200+ npm packages | 1 CDN script (Chart.js) |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    PulseGrid Frontend                    │
-├─────────────┬──────────────┬──────────────┬─────────────┤
-│  pipeline.js│   engine.js  │   charts.js  │   app.js    │
-│  Data Layer │  Stats Engine│  Viz Engine   │  Controller │
-├─────────────┼──────────────┼──────────────┼─────────────┤
-│ narrative.js│  causal.js   │ recession.js │  embed.js   │
-│  NLG Engine │  Granger Test│  CLI Engine   │  Widgets    │
-├─────────────┴──────────────┴──────────────┴─────────────┤
-│              World Bank API  ←  IndexedDB Cache (6h TTL) │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    PulseGrid Frontend                        │
+├─────────────┬──────────────┬──────────────┬─────────────────┤
+│ pipeline.js │  engine.js   │  charts.js   │    app.js       │
+│ Data Layer  │ Stats Engine │  Viz Engine  │   Controller    │
+├─────────────┼──────────────┼──────────────┼─────────────────┤
+│narrative.js │  causal.js   │recession.js  │   embed.js      │
+│  NLG Engine │Granger Test  │  CLI Engine  │  Widget System  │
+├─────────────┴──────────────┴──────────────┴─────────────────┤
+│         World Bank API  ←→  IndexedDB Cache (6 h TTL)       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Optional Backend (server/)
+### Optional Backend (`server/`)
 ```
-Express.js API → Scheduled cron pipelines → In-memory cache
-Endpoints: /api/wb/:country/:indicator, /api/recession/:country, /api/analyses
+Express.js → node-cron scheduled pipelines → in-memory cache
+GET /api/wb/:country/:indicator   — proxied World Bank data
+GET /api/recession/:country       — pre-computed CLI scores
+GET /api/analyses                 — cached narrative reports
 ```
 
 ---
 
-## ✨ Features
+## Features
 
-### 📊 Core Analytics
-- **Interactive Dashboard** — 15 macroeconomic indicators across 200+ countries
-- **Holt-Winters Forecasting** — Double exponential smoothing with configurable α/β
-- **Pearson Correlation Matrix** — Multi-indicator cross-correlation heatmaps
-- **Anomaly Detection** — Z-score & IQR-based outlier identification
-- **Multi-Country Comparison** — Side-by-side analysis with normalisation
+### Live Dashboard
+- **217 countries**, **15 macroeconomic indicators**, **60+ years** of World Bank data
+- Country + indicator + year-range selectors with real-time chart updates
+- Auto-loads with sensible defaults on every visit
+- Live API status indicator in the nav bar
+- Offline banner + cached-data fallback when the network drops
 
-### 🧠 AI Insights Engine
-- **Narrative Intelligence** — Rule-based NLG engine generates multi-section analytical reports with executive summaries, structural break detection, trend phase analysis, and forward-looking outlook
-- **Causal Inference** — Granger causality testing from first principles: OLS via normal equations, Gaussian elimination with partial pivoting, F-distribution p-values via regularised incomplete beta function
-- **Recession Predictor** — Composite Leading Indicator (CLI) with 6 weighted signals, real-time gauge visualisation, timeline charts, and 12-month projections
+**Indicators tracked:**
 
-### 🔧 Engineering
-- **Zero-dependency frontend** — Only Chart.js via CDN; all statistics hand-rolled
-- **IndexedDB cache** — 6-hour TTL with automatic eviction, offline resilience
-- **Embeddable widgets** — Generate iframe/script embed codes for any chart
-- **Data pipeline** — Retry with exponential backoff, automatic interpolation, normalisation
-- **Real-time logging** — Built-in developer console with timestamped pipeline events
+| Code | Name |
+|------|------|
+| `NY.GDP.MKTP.CD` | GDP (Current USD) |
+| `NY.GDP.MKTP.KD.ZG` | GDP Growth (%) |
+| `NY.GDP.PCAP.CD` | GDP per Capita (USD) |
+| `FP.CPI.TOTL.ZG` | Inflation Rate (%) |
+| `SL.UEM.TOTL.ZS` | Unemployment (%) |
+| `NE.EXP.GNFS.ZS` | Exports (% of GDP) |
+| `NE.IMP.GNFS.ZS` | Imports (% of GDP) |
+| `BX.KLT.DINV.WD.GD.ZS` | FDI Net Inflows (% GDP) |
+| `GC.DOD.TOTL.GD.ZS` | Government Debt (% GDP) |
+| `SP.POP.TOTL` | Total Population |
+| `SE.ADT.LITR.ZS` | Adult Literacy Rate (%) |
+| `SH.XPD.CHEX.GD.ZS` | Health Expenditure (% GDP) |
+| `EN.ATM.CO2E.PC` | CO₂ Emissions (t per capita) |
+| `EG.USE.ELEC.KH.PC` | Electric Power Consumption |
+| `IT.NET.USER.ZS` | Internet Users (%) |
+
+### Forecast
+- **Holt-Winters double exponential smoothing** with configurable α / β sliders
+- In-chart confidence bands and projected values
+- Switchable chart types (line / bar)
+
+### Correlation
+- **Pearson correlation matrix** across any subset of the 15 indicators
+- Colour-coded heatmap rendered via Chart.js
+
+### Anomaly Detection
+- **Z-score** and **IQR** outlier identification on any time series
+- Anomalous data points highlighted directly on the chart
+
+### Multi-Country Comparison
+- Side-by-side overlay of up to N countries on a single chart
+- Toggle normalisation to compare relative trends regardless of scale
+
+### AI Narrative Insights (`narrative.js`)
+A rule-based Natural Language Generation (NLG) engine — no external API required:
+
+- **Economic knowledge base** — per-indicator drivers, decline / growth reasons
+- **Global events database** — automatically correlates data anomalies withknown events (COVID-19, GFC 2008, 2014 oil crash, etc.)
+- **Structural break detection** — rolling standard deviation identifies regime changes
+- **Trend phase classification** — growth, decline, stability, and volatility phases
+- **Regional context enrichment** — country-specific narrative framing
+- Outputs a multi-section analyst-style report: executive summary, trend analysis, structural breaks, outlook
+
+### Granger Causality (`causal.js`)
+Full implementation from first principles — no library calls:
+
+1. **OLS regression** via normal equations $(X^TX)^{-1}X^Ty$
+2. **Matrix inversion** via Gaussian elimination with partial pivoting
+3. **F-statistic** from restricted vs unrestricted model RSS
+4. **P-value** via regularised incomplete beta function (Lentz continued-fraction algorithm)
+5. Tests lags 1–3; reports F-stat, p-value, and significance per lag
+
+### Recession Predictor (`recession.js`)
+Composite Leading Indicator (CLI) combining 6 weighted macroeconomic signals:
+
+| Signal | Weight | Logic |
+|--------|--------|-------|
+| GDP Growth | 30 % | Contractionary if < 0 % |
+| Unemployment delta | 20 % | Rising sharply = stress |
+| Inflation | 15 % | Extreme deviation from 2 % target |
+| Exports (% GDP) | 15 % | Year-over-year decline |
+| FDI Inflows | 10 % | Falling inflows signal capital flight |
+| Government Debt | 10 % | Above 80 % GDP threshold |
+
+- Real-time gauge visualisation (0–100 % risk score)
+- 12-month recession probability projection chart
+- Timeline of historical CLI scores
+
+### Data Pipeline Section
+- Built-in developer console with timestamped, colour-coded pipeline logs
+- Live metrics: API requests fired, null values imputed, models run, charts rendered
+- Session summary panel updated in real-time
+
+### Embeddable Widgets (`embed.js` / `embed.html`)
+- Generate `<iframe>` or `<script>` embed codes for any chart
+- Standalone `embed.html` page for iframe embedding
+- Configurable country, indicator, and date range via URL params
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Frontend Only (Recommended)
 ```bash
-# Clone
 git clone https://github.com/edoh-Onuh/pulsegrid.git
 cd pulsegrid
 
-# Serve (any static server works)
+# Any static file server works — no build step, no npm install
 npx serve .
 # or
 python -m http.server 8080
 ```
 
-Open `http://localhost:8080` — that's it. No build step, no npm install.
+Open `http://localhost:8080`. Done.
 
-### With Backend API
+### With the Optional Backend API
 ```bash
 cd server
 npm install
-npm start
-# API running on http://localhost:3001
+npm start          # Express API on http://localhost:3001
 ```
+
+The frontend auto-detects the local API and routes requests through it instead of calling World Bank directly.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 pulsegrid/
-├── index.html          # Single-page application (800+ lines)
-├── embed.html          # Standalone embeddable widget
+├── index.html               # Single-page app (~960 lines)
+├── embed.html               # Standalone embeddable widget page
+├── favicon.svg
 ├── css/
-│   └── styles.css      # Full design system (1400+ lines)
+│   └── styles.css           # Full design system (~1 400 lines)
 ├── js/
-│   ├── pipeline.js     # Data fetching, caching, normalisation
-│   ├── engine.js       # Statistical computations
-│   ├── charts.js       # Chart.js wrappers & visualisations
-│   ├── app.js          # Main controller & UI logic
-│   ├── narrative.js    # AI narrative report generator
-│   ├── causal.js       # Granger causality engine
-│   ├── recession.js    # Recession prediction engine
-│   └── embed.js        # Embeddable widget system
-├── server/             # Optional Node.js backend
-│   ├── index.js        # Express API server
-│   ├── pipeline.js     # Server-side data pipeline
-│   ├── cache.js        # In-memory cache with TTL
-│   └── package.json
+│   ├── pipeline.js          # World Bank API client, IndexedDB cache, ETL
+│   ├── engine.js            # Statistical engine (Holt-Winters, correlation, anomaly)
+│   ├── charts.js            # Chart.js wrappers & all visualisations
+│   ├── app.js               # Main UI controller (~1 000 lines)
+│   ├── narrative.js         # Rule-based NLG narrative engine (~500 lines)
+│   ├── causal.js            # Granger causality from first principles (~340 lines)
+│   ├── recession.js         # Composite Leading Indicator engine (~336 lines)
+│   └── embed.js             # Embeddable widget system
+├── server/                  # Optional Node.js backend
+│   ├── index.js             # Express API server
+│   ├── pipeline.js          # Server-side data pipeline
+│   ├── cache.js             # In-memory cache with TTL
+│   └── package.json         # express, cors, node-cron, compression
 ├── docs/
-│   └── blog.md         # Technical blog post
-├── CONTRIBUTING.md     # Contribution guidelines
-├── LICENSE             # MIT License
-└── README.md           # You are here
+│   └── blog.md              # Technical write-up
+├── CONTRIBUTING.md
+├── LICENSE                  # MIT
+└── README.md
 ```
 
 ---
 
-## 🧪 Technical Deep Dives
+## Engineering Notes
 
-### Granger Causality (causal.js)
-Unlike libraries that call `statsmodels.grangercausalitytests()`, PulseGrid implements Granger causality **from mathematical foundations**:
+### IndexedDB Cache
+- 6-hour TTL on all World Bank responses
+- Automatic expiry eviction on read
+- Fully offline-capable: stale data served with a UI banner rather than a hard error
 
-1. **OLS Regression** via normal equations (X'X)⁻¹X'y
-2. **Matrix inversion** via Gaussian elimination with partial pivoting
-3. **F-statistic** computed from restricted/unrestricted model RSS
-4. **P-value** via regularised incomplete beta function using Lentz's continued fraction algorithm
+### Data Pipeline
+- Exponential-backoff retry (3 attempts, 1.2 s base delay) on all API calls
+- Automatic linear interpolation for sparse / missing data points
+- Min-max normalisation toggle for cross-country comparison
 
-### Narrative Intelligence (narrative.js)
-A rule-based Natural Language Generation engine that produces multi-section analytical reports:
-
-- **Structural break detection** — Identifies regime changes using rolling standard deviation
-- **Trend phase analysis** — Classifies periods into growth, decline, stability, and volatility phases
-- **Global event matching** — Correlates data patterns with known events (COVID-19, GFC, etc.)
-- **Regional context** — Enriches narratives with country-specific economic intelligence
-
-### Recession Predictor (recession.js)
-Composite Leading Indicator (CLI) engine combining 6 macroeconomic signals:
-
-| Indicator | Weight | Signal Function |
-|-----------|--------|----------------|
-| GDP Growth | 30% | Negative growth detection |
-| Unemployment | 20% | Above-threshold assessment |
-| Inflation | 15% | Deviation from 2% target |
-| Exports/GDP | 15% | Year-over-year decline |
-| FDI/GDP | 10% | Below historical mean |
-| Govt Debt/GDP | 10% | Above 80% threshold |
+### Zero-Dependency Frontend
+The only external resource loaded is Chart.js via CDN. Every statistical algorithm — Holt-Winters smoothing, Pearson correlation, IQR/Z-score anomaly detection, OLS regression, Granger F-test, and the NLG engine — is implemented from scratch in vanilla JS ES2023.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Priority areas:**
 - Additional statistical methods (ARIMA, VAR, cointegration tests)
@@ -181,7 +239,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
-## 📝 License
+## License
 
 MIT © [Edoh Onuh](https://edon-tech.netlify.app)
 
@@ -191,6 +249,6 @@ MIT © [Edoh Onuh](https://edon-tech.netlify.app)
 
 **Built with curiosity and vanilla JavaScript.**
 
-*If you find PulseGrid useful, consider giving it a ⭐*
+*If PulseGrid is useful to you, consider giving it a ⭐*
 
 </div>
