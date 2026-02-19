@@ -1703,10 +1703,12 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.gauge-risk-badge.low    { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
-.gauge-risk-badge.medium { background: rgba(234, 179, 8, 0.15); color: #eab308; }
-.gauge-risk-badge.high   { background: rgba(249, 115, 22, 0.15); color: #f97316; }
-.gauge-risk-badge.severe { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.gauge-risk-badge.low      { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.gauge-risk-badge.moderate { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.gauge-risk-badge.medium   { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+.gauge-risk-badge.elevated { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.gauge-risk-badge.high     { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.gauge-risk-badge.severe   { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
 
 .recession-alert-box {
   border-radius: var(--radius);
@@ -1717,9 +1719,13 @@ body::before {
   border-left: 4px solid;
 }
 .recession-alert-box.low    { background: rgba(34, 197, 94, 0.06); border-color: #22c55e; color: #22c55e; }
+.recession-alert-box.safe   { background: rgba(34, 197, 94, 0.06); border-color: #22c55e; color: #22c55e; }
 .recession-alert-box.medium { background: rgba(234, 179, 8, 0.06); border-color: #eab308; color: #eab308; }
+.recession-alert-box.watch  { background: rgba(234, 179, 8, 0.06); border-color: #eab308; color: #eab308; }
 .recession-alert-box.high   { background: rgba(249, 115, 22, 0.06); border-color: #f97316; color: #f97316; }
+.recession-alert-box.warning { background: rgba(249, 115, 22, 0.06); border-color: #f97316; color: #f97316; }
 .recession-alert-box.severe { background: rgba(239, 68, 68, 0.06); border-color: #ef4444; color: #ef4444; }
+.recession-alert-box.critical { background: rgba(239, 68, 68, 0.06); border-color: #ef4444; color: #ef4444; }
 
 .recession-signals-grid {
   display: grid;
