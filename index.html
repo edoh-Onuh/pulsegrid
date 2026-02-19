@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseGrid — Real-Time Economic Intelligence Engine</title>
+  <meta name="description" content="PulseGrid: A browser-native data science and data engineering platform. Live economic intelligence with Holt-Winters forecasting, anomaly detection, correlation analysis, and a full ETL pipeline — all computed client-side." />
+  <meta name="keywords" content="economic intelligence, data science, data engineering, forecasting, anomaly detection, World Bank data, ETL pipeline, PulseGrid" />
+  <meta property="og:title" content="PulseGrid — Real-Time Economic Intelligence Engine" />
+  <meta property="og:description" content="Browser-native data science platform: live economic forecasting, anomaly detection, and correlation analysis powered by World Bank open data." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pulsegrid.netlify.app/" />
+  <meta property="og:image" content="https://pulsegrid.netlify.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PulseGrid — Real-Time Economic Intelligence Engine" />
+  <meta name="twitter:description" content="Browser-native data science platform: live economic forecasting, anomaly detection, and correlation analysis." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#050508" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<a href="#dashboard" class="skip-link">Skip to main content</a>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner" role="alert" aria-live="polite">
+  ⚠ You're offline — cached data is still available, but live updates are paused.
+</div>
+
+<!-- ═══ PRELOADER ═══ -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader-inner">
+    <svg class="preloader-logo" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="4" y="30" width="8" height="26" rx="2" fill="#00D4FF" opacity="0.4"/>
+      <rect x="16" y="18" width="8" height="38" rx="2" fill="#00D4FF" opacity="0.6"/>
+      <rect x="28" y="8" width="8" height="48" rx="2" fill="#00D4FF"/>
+      <rect x="40" y="20" width="8" height="36" rx="2" fill="#00D4FF" opacity="0.6"/>
+      <rect x="52" y="34" width="8" height="22" rx="2" fill="#00D4FF" opacity="0.4"/>
+    </svg>
+    <span class="preloader-title">PulseGrid</span>
+    <div class="preloader-pipeline">
+      <span class="pipe-step active" id="pipe-ingest">INGEST</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step" id="pipe-transform">TRANSFORM</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step" id="pipe-model">MODEL</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step" id="pipe-output">OUTPUT</span>
+    </div>
+    <p class="preloader-status" id="preloader-status">Connecting to World Bank API…</p>
+  </div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="nav-brand" aria-label="PulseGrid Home">
+    <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="2" y="16" width="4" height="14" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="8" y="10" width="4" height="20" rx="1" fill="currentColor" opacity="0.65"/>
+      <rect x="14" y="4" width="4" height="26" rx="1" fill="currentColor"/>
+      <rect x="20" y="11" width="4" height="19" rx="1" fill="currentColor" opacity="0.65"/>
+      <rect x="26" y="18" width="4" height="12" rx="1" fill="currentColor" opacity="0.4"/>
+    </svg>
+    <span class="nav-brand-text">PulseGrid</span>
+    <span class="nav-brand-badge">LIVE</span>
+  </a>
+
+  <ul class="nav-links" role="list">
+    <li><a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a></li>
+    <li><a href="#forecast" class="nav-link" data-section="forecast">Forecast</a></li>
+    <li><a href="#correlation" class="nav-link" data-section="correlation">Correlation</a></li>
+    <li><a href="#anomaly" class="nav-link" data-section="anomaly">Anomalies</a></li>
+    <li><a href="#compare" class="nav-link" data-section="compare">Compare</a></li>
+    <li><a href="#pipeline" class="nav-link" data-section="pipeline">Pipeline</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="nav-status-dot" id="api-status-dot" title="API Status"></div>
+    <span class="nav-status-label" id="api-status-label">Connecting…</span>
+    <button class="nav-burger" aria-label="Toggle menu" aria-expanded="false" id="nav-burger">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile overlay -->
+<div class="nav-overlay" id="nav-overlay" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+  <button class="nav-overlay-close" id="nav-overlay-close" aria-label="Close menu">✕</button>
+  <a href="#dashboard" class="nav-overlay-link active">Dashboard</a>
+  <a href="#forecast" class="nav-overlay-link">Forecast</a>
+  <a href="#correlation" class="nav-overlay-link">Correlation</a>
+  <a href="#anomaly" class="nav-overlay-link">Anomalies</a>
+  <a href="#compare" class="nav-overlay-link">Compare</a>
+  <a href="#pipeline" class="nav-overlay-link">Pipeline</a>
+  <a href="https://edon-tech.netlify.app/case-studies.html" class="nav-overlay-cta" target="_blank" rel="noopener noreferrer">Built by EDON ↗</a>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg-grid" aria-hidden="true"></div>
+  <div class="hero-particles" id="hero-particles" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Real-Time · World Bank Open Data · 217 Countries
+      </div>
+      <h1 class="hero-title">
+        Economic <span class="accent">Intelligence</span><br/>
+        Engineered from<br/>First Principles
+      </h1>
+      <p class="hero-sub">
+        A browser-native data science &amp; engineering platform. Live ETL pipeline, 
+        Holt-Winters forecasting, anomaly detection, and correlation analysis — 
+        all computed client-side. No backend. No black box.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#dashboard" class="btn btn-primary">Launch Dashboard <span class="btn-arrow">↓</span></a>
+        <a href="#pipeline" class="btn btn-ghost">View the Pipeline</a>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="hstat">
+          <span class="hstat-val" id="hs-countries">—</span>
+          <span class="hstat-label">Countries Available</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val" id="hs-indicators">15+</span>
+          <span class="hstat-label">Indicators Tracked</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val" id="hs-years">60+</span>
+          <span class="hstat-label">Years of Data</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val" id="hs-models">4</span>
+          <span class="hstat-label">ML Models Running</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════════ -->
+<section id="dashboard" class="section-wrap">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">01 — Live Dashboard</span>
+      <h2 class="section-title">Global Economic <span class="accent">Pulse</span></h2>
+      <p class="section-lead">Select a country and indicator. Data flows through the pipeline in real-time — ingested from World Bank, normalised, and visualised.</p>
+    </header>
+
+    <!-- CONTROLS -->
+    <div class="controls-bar" role="group" aria-label="Dashboard controls">
+      <div class="control-group">
+        <label class="control-label" for="country-select">Country</label>
+        <div class="select-wrap">
+          <select id="country-select" class="control-select country-select-target" aria-label="Select country">
+            <option value="">Loading countries…</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="indicator-select">Indicator</label>
+        <div class="select-wrap">
+          <select id="indicator-select" class="control-select" aria-label="Select indicator">
+            <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
+            <option value="NY.GDP.PCAP.CD">GDP per capita (US$)</option>
+            <option value="FP.CPI.TOTL.ZG">Inflation rate (%)</option>
+            <option value="SL.UEM.TOTL.ZS">Unemployment rate (%)</option>
+            <option value="NE.EXP.GNFS.ZS">Exports (% of GDP)</option>
+            <option value="NE.IMP.GNFS.ZS">Imports (% of GDP)</option>
+            <option value="GC.DOD.TOTL.GD.ZS">Government debt (% of GDP)</option>
+            <option value="BN.CAB.XOKA.GD.ZS">Current account balance (% of GDP)</option>
+            <option value="SP.POP.TOTL">Population (total)</option>
+            <option value="SP.URB.TOTL.IN.ZS">Urban population (%)</option>
+            <option value="EG.USE.PCAP.KG.OE">Energy use per capita (kg)</option>
+            <option value="EN.ATM.CO2E.PC">CO₂ emissions per capita (metric tons)</option>
+            <option value="SE.XPD.TOTL.GD.ZS">Education expenditure (% of GDP)</option>
+            <option value="SH.XPD.CHEX.GD.ZS">Health expenditure (% of GDP)</option>
+            <option value="IT.NET.USER.ZS">Internet users (% of population)</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="year-from">From</label>
+        <div class="select-wrap">
+          <select id="year-from" class="control-select" aria-label="Start year">
+            <option value="1990">1990</option>
+            <option value="1995">1995</option>
+            <option value="2000" selected>2000</option>
+            <option value="2005">2005</option>
+            <option value="2010">2010</option>
+            <option value="2015">2015</option>
+            <option value="2018">2018</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="year-to">To</label>
+        <div class="select-wrap">
+          <select id="year-to" class="control-select" aria-label="End year">
+            <option value="2010">2010</option>
+            <option value="2015">2015</option>
+            <option value="2018">2018</option>
+            <option value="2020">2020</option>
+            <option value="2022">2022</option>
+            <option value="2023" selected>2023</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="load-data-btn" aria-label="Load data">
+        <span class="btn-load-text">Load Data</span>
+        <span class="btn-spinner" hidden>⟳</span>
+      </button>
+    </div>
+
+    <!-- METRIC CARDS -->
+    <div class="metric-cards" id="metric-cards" data-stagger aria-live="polite" aria-label="Key metrics">
+      <div class="metric-card" id="mc-latest">
+        <span class="mc-label">Latest Value</span>
+        <span class="mc-val" id="mc-latest-val">—</span>
+        <span class="mc-sub" id="mc-latest-year">—</span>
+      </div>
+      <div class="metric-card" id="mc-change">
+        <span class="mc-label">Period Change</span>
+        <span class="mc-val" id="mc-change-val">—</span>
+        <span class="mc-sub" id="mc-change-pct">vs period start</span>
+      </div>
+      <div class="metric-card" id="mc-trend">
+        <span class="mc-label">CAGR</span>
+        <span class="mc-val" id="mc-trend-val">—</span>
+        <span class="mc-sub">Compound annual growth</span>
+      </div>
+      <div class="metric-card" id="mc-volatility">
+        <span class="mc-label">Volatility (σ)</span>
+        <span class="mc-val" id="mc-vol-val">—</span>
+        <span class="mc-sub">Std deviation of growth</span>
+      </div>
+    </div>
+
+    <!-- MAIN CHART -->
+    <div class="chart-panel">
+      <div class="chart-panel-header">
+        <div>
+          <h3 class="chart-panel-title" id="chart-main-title">Select a country and indicator above</h3>
+          <p class="chart-panel-sub" id="chart-main-sub">World Bank Open Data · Processed by PulseGrid ETL</p>
+        </div>
+        <div class="chart-panel-actions">
+          <button class="chart-btn active" id="chart-line-btn" aria-label="Line chart">Line</button>
+          <button class="chart-btn" id="chart-bar-btn" aria-label="Bar chart">Bar</button>
+          <button class="chart-btn" id="chart-area-btn" aria-label="Area chart">Area</button>
+          <button class="btn-export" id="export-csv-btn" aria-label="Export data as CSV" onclick="PG.exportCSV()">↓ CSV</button>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="main-chart" aria-label="Main indicator chart"></canvas>
+        <div class="chart-empty-state" id="chart-empty">
+          <div class="chart-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="30" width="8" height="26" rx="2" fill="currentColor" opacity="0.2"/>
+              <rect x="16" y="18" width="8" height="38" rx="2" fill="currentColor" opacity="0.3"/>
+              <rect x="28" y="8" width="8" height="48" rx="2" fill="currentColor" opacity="0.5"/>
+              <rect x="40" y="20" width="8" height="36" rx="2" fill="currentColor" opacity="0.3"/>
+              <rect x="52" y="34" width="8" height="22" rx="2" fill="currentColor" opacity="0.2"/>
+            </svg>
+          </div>
+          <p>Choose a country &amp; indicator, then click <strong>Load Data</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPARKLINE GRID -->
+    <div class="spark-grid" id="spark-grid">
+      <h3 class="spark-grid-title">Key Indicators — Quick View</h3>
+      <div class="spark-cards" id="spark-cards" data-stagger>
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FORECAST
+═══════════════════════════════════════════ -->
+<section id="forecast" class="section-wrap alt-bg">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">02 — Forecasting Engine</span>
+      <h2 class="section-title">Holt-Winters <span class="accent">Prediction</span></h2>
+      <p class="section-lead">Triple exponential smoothing with trend and seasonality components. Generates 5-year forecasts with 95% confidence intervals — computed in-browser, no API call.</p>
+    </header>
+
+    <div class="forecast-layout">
+      <div class="forecast-controls panel">
+        <h3 class="panel-title">Model Parameters</h3>
+
+        <div class="param-row">
+          <label class="param-label" for="fc-country">Country</label>
+          <div class="select-wrap">
+            <select id="fc-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="fc-indicator">Indicator</label>
+          <div class="select-wrap">
+            <select id="fc-indicator" class="control-select">
+              <option value="NY.GDP.PCAP.CD">GDP per capita (US$)</option>
+              <option value="FP.CPI.TOTL.ZG">Inflation rate (%)</option>
+              <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
+              <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
+              <option value="IT.NET.USER.ZS">Internet users (%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="fc-horizon">Forecast horizon</label>
+          <div class="param-slider-wrap">
+            <input type="range" id="fc-horizon" class="param-slider" min="1" max="10" value="5" aria-label="Forecast horizon in years" />
+            <span class="param-slider-val"><span id="fc-horizon-val">5</span> years</span>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="fc-alpha">Alpha (α) — Level</label>
+          <div class="param-slider-wrap">
+            <input type="range" id="fc-alpha" class="param-slider" min="0.1" max="0.9" step="0.1" value="0.3" aria-label="Alpha smoothing parameter" />
+            <span class="param-slider-val"><span id="fc-alpha-val">0.3</span></span>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="fc-beta">Beta (β) — Trend</label>
+          <div class="param-slider-wrap">
+            <input type="range" id="fc-beta" class="param-slider" min="0.1" max="0.9" step="0.1" value="0.1" aria-label="Beta trend parameter" />
+            <span class="param-slider-val"><span id="fc-beta-val">0.1</span></span>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="fc-ci">Confidence interval</label>
+          <div class="select-wrap">
+            <select id="fc-ci" class="control-select">
+              <option value="90">90%</option>
+              <option value="95" selected>95%</option>
+              <option value="99">99%</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-full" id="run-forecast-btn">Run Forecast ↗</button>
+
+        <div class="model-info" id="forecast-model-info">
+          <h4 class="model-info-title">Model Output</h4>
+          <div class="model-stats" id="forecast-stats"></div>
+        </div>
+      </div>
+
+      <div class="forecast-chart-area">
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="fc-chart-title">Forecast will appear here</h3>
+              <p class="chart-panel-sub">Holt-Winters double exponential smoothing with confidence bands</p>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap--tall">
+            <canvas id="forecast-chart" aria-label="Forecast chart"></canvas>
+            <div class="chart-empty-state" id="forecast-empty">
+              <div class="chart-empty-icon" aria-hidden="true">📈</div>
+              <p>Configure parameters and click <strong>Run Forecast</strong></p>
+            </div>
+          </div>
+        </div>
+        <div class="forecast-legend">
+          <span class="fl-item"><span class="fl-dot fl-actual"></span>Historical data</span>
+          <span class="fl-item"><span class="fl-dot fl-forecast"></span>Forecast</span>
+          <span class="fl-item"><span class="fl-dot fl-ci"></span>95% Confidence band</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CORRELATION
+═══════════════════════════════════════════ -->
+<section id="correlation" class="section-wrap">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">03 — Correlation Engine</span>
+      <h2 class="section-title">Indicator <span class="accent">Relationships</span></h2>
+      <p class="section-lead">Pearson correlation matrix computed across multiple economic indicators for any country. Heatmap reveals which forces move together — and which diverge.</p>
+    </header>
+
+    <div class="correlation-layout">
+      <div class="corr-controls panel">
+        <h3 class="panel-title">Select Indicators</h3>
+        <p class="panel-sub">Choose 3–6 indicators for the correlation matrix</p>
+        <div class="corr-country-row">
+          <label class="param-label" for="corr-country">Country</label>
+          <div class="select-wrap">
+            <select id="corr-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <div class="corr-checkboxes" id="corr-checkboxes">
+          <label class="corr-check"><input type="checkbox" value="NY.GDP.PCAP.CD" checked /> GDP per capita</label>
+          <label class="corr-check"><input type="checkbox" value="FP.CPI.TOTL.ZG" checked /> Inflation</label>
+          <label class="corr-check"><input type="checkbox" value="SL.UEM.TOTL.ZS" checked /> Unemployment</label>
+          <label class="corr-check"><input type="checkbox" value="NE.EXP.GNFS.ZS" checked /> Exports % GDP</label>
+          <label class="corr-check"><input type="checkbox" value="GC.DOD.TOTL.GD.ZS" /> Govt debt % GDP</label>
+          <label class="corr-check"><input type="checkbox" value="SE.XPD.TOTL.GD.ZS" /> Education spend</label>
+          <label class="corr-check"><input type="checkbox" value="SH.XPD.CHEX.GD.ZS" /> Health spend</label>
+          <label class="corr-check"><input type="checkbox" value="IT.NET.USER.ZS" /> Internet users</label>
+          <label class="corr-check"><input type="checkbox" value="EN.ATM.CO2E.PC" /> CO₂ emissions</label>
+          <label class="corr-check"><input type="checkbox" value="SP.URB.TOTL.IN.ZS" /> Urbanisation</label>
+        </div>
+        <button class="btn btn-primary w-full" id="run-corr-btn">Compute Matrix ↗</button>
+      </div>
+
+      <div class="corr-output">
+        <div class="chart-panel heatmap-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="corr-title">Correlation Heatmap</h3>
+              <p class="chart-panel-sub">Pearson r · Range: −1 (inverse) to +1 (direct)</p>
+            </div>
+          </div>
+          <div class="heatmap-wrap" id="heatmap-wrap">
+            <div class="chart-empty-state" id="corr-empty">
+              <div class="chart-empty-icon" aria-hidden="true">🔥</div>
+              <p>Select indicators and click <strong>Compute Matrix</strong></p>
+            </div>
+            <div id="heatmap-grid" class="heatmap-grid" role="table" aria-label="Correlation matrix"></div>
+          </div>
+        </div>
+        <div class="corr-insights panel" id="corr-insights">
+          <h4 class="panel-title">Key Insights</h4>
+          <ul class="insight-list" id="insight-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ANOMALY DETECTION
+═══════════════════════════════════════════ -->
+<section id="anomaly" class="section-wrap alt-bg">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">04 — Anomaly Detector</span>
+      <h2 class="section-title">Statistical <span class="accent">Outlier</span> Detection</h2>
+      <p class="section-lead">Z-score and IQR fence methods identify statistically significant deviations — economic shocks, crises, and structural breaks — flagged directly on the time series.</p>
+    </header>
+
+    <div class="anomaly-layout">
+      <div class="anomaly-controls panel">
+        <h3 class="panel-title">Detection Parameters</h3>
+        <div class="param-row">
+          <label class="param-label" for="an-country">Country</label>
+          <div class="select-wrap">
+            <select id="an-country" class="control-select country-select-target"></select>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="an-indicator">Indicator</label>
+          <div class="select-wrap">
+            <select id="an-indicator" class="control-select">
+              <option value="NY.GDP.PCAP.CD">GDP per capita (US$)</option>
+              <option value="FP.CPI.TOTL.ZG">Inflation rate (%)</option>
+              <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
+              <option value="NY.GDP.MKTP.KD.ZG">GDP growth rate (%)</option>
+              <option value="BN.CAB.XOKA.GD.ZS">Current account balance</option>
+            </select>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label">Detection method</label>
+          <div class="method-toggle">
+            <button class="method-btn active" data-method="zscore" id="method-zscore">Z-Score</button>
+            <button class="method-btn" data-method="iqr" id="method-iqr">IQR Fence</button>
+            <button class="method-btn" data-method="both" id="method-both">Both</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="an-threshold">Z-Score threshold</label>
+          <div class="param-slider-wrap">
+            <input type="range" id="an-threshold" class="param-slider" min="1.5" max="3.5" step="0.5" value="2.0" aria-label="Z-score threshold" />
+            <span class="param-slider-val"><span id="an-threshold-val">2.0</span>σ</span>
+          </div>
+        </div>
+        <button class="btn btn-primary w-full" id="run-anomaly-btn">Detect Anomalies ↗</button>
+
+        <div class="anomaly-summary" id="anomaly-summary">
+          <h4 class="model-info-title">Detected Anomalies</h4>
+          <div id="anomaly-list" class="anomaly-list"></div>
+        </div>
+      </div>
+
+      <div class="anomaly-chart-area">
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3 class="chart-panel-title" id="an-chart-title">Anomaly detection chart</h3>
+              <p class="chart-panel-sub">Red markers indicate statistically significant deviations</p>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap--tall">
+            <canvas id="anomaly-chart" aria-label="Anomaly detection chart"></canvas>
+            <div class="chart-empty-state" id="anomaly-empty">
+              <div class="chart-empty-icon" aria-hidden="true">🔍</div>
+              <p>Configure parameters and click <strong>Detect Anomalies</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     COUNTRY COMPARATOR
+═══════════════════════════════════════════ -->
+<section id="compare" class="section-wrap">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">05 — Country Comparator</span>
+      <h2 class="section-title">Multi-Country <span class="accent">Analysis</span></h2>
+      <p class="section-lead">Side-by-side comparison of up to 5 countries across any indicator. Overlaid time series reveals divergence, convergence, and structural differences.</p>
+    </header>
+
+    <div class="compare-controls panel" style="margin-bottom:2rem;">
+      <div class="compare-row">
+        <div class="control-group">
+          <label class="control-label" for="cmp-indicator">Indicator</label>
+          <div class="select-wrap">
+            <select id="cmp-indicator" class="control-select">
+              <option value="NY.GDP.PCAP.CD">GDP per capita (US$)</option>
+              <option value="FP.CPI.TOTL.ZG">Inflation rate (%)</option>
+              <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
+              <option value="IT.NET.USER.ZS">Internet users (%)</option>
+              <option value="EN.ATM.CO2E.PC">CO₂ per capita</option>
+              <option value="SP.URB.TOTL.IN.ZS">Urbanisation (%)</option>
+              <option value="SE.XPD.TOTL.GD.ZS">Education spend (% GDP)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="run-compare-btn">Compare ↗</button>
+      </div>
+      <div class="compare-country-tags" id="compare-country-tags">
+        <div class="country-tags" id="country-tags-list">
+          <!-- populated by JS -->
+        </div>
+        <div class="select-wrap" style="max-width:220px;">
+            <select id="add-compare-country" class="control-select country-select-target" aria-label="Add country to comparison">
+            <option value="">+ Add country…</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="chart-panel-header">
+        <div>
+          <h3 class="chart-panel-title" id="cmp-chart-title">Multi-country comparison</h3>
+          <p class="chart-panel-sub">Normalised to index (first year = 100) for comparability</p>
+        </div>
+        <label class="toggle-label">
+          <input type="checkbox" id="cmp-normalise" checked aria-label="Normalise to index" />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          Normalise
+        </label>
+      </div>
+      <div class="chart-wrap chart-wrap--tall">
+        <canvas id="compare-chart" aria-label="Country comparison chart"></canvas>
+        <div class="chart-empty-state" id="compare-empty">
+          <div class="chart-empty-icon" aria-hidden="true">🌍</div>
+          <p>Add countries and click <strong>Compare</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ranked table -->
+      <div class="rank-table-wrap" id="rank-table-wrap">
+      <h3 class="rank-table-title" id="rank-table-title">Latest Values — Ranked</h3>
+      <table class="rank-table" id="rank-table" aria-label="Country rankings">
+        <thead><tr><th>Rank</th><th>Country</th><th>Latest Value</th><th>Year</th><th>Trend</th></tr></thead>
+        <tbody id="rank-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PIPELINE VISUALISER
+═══════════════════════════════════════════ -->
+<section id="pipeline" class="section-wrap alt-bg">
+  <div class="container">
+    <header class="section-header">
+      <span class="eyebrow">06 — Data Engineering</span>
+      <h2 class="section-title">The ETL <span class="accent">Pipeline</span></h2>
+      <p class="section-lead">Every chart in PulseGrid is the output of a transparent, observable data engineering pipeline. This is the architecture — from raw API response to rendered intelligence.</p>
+    </header>
+
+    <div class="pipeline-viz" id="pipeline-viz" role="img" aria-label="ETL pipeline diagram">
+
+      <!-- Stage 1: Ingest -->
+      <div class="pipe-stage" data-stage="1">
+        <div class="pipe-stage-icon" aria-hidden="true">📡</div>
+        <h3 class="pipe-stage-name">Ingest</h3>
+        <p class="pipe-stage-role">Data Engineering</p>
+        <ul class="pipe-stage-steps">
+          <li>HTTP fetch from World Bank REST API</li>
+          <li>Rate limiting &amp; retry logic (3× exponential backoff)</li>
+          <li>Response validation (JSON schema check)</li>
+          <li>IndexedDB cache (TTL: 24 hours)</li>
+        </ul>
+        <div class="pipe-stage-metric">
+          <span class="pipe-metric-val" id="pm-requests">0</span>
+          <span class="pipe-metric-label">API requests made</span>
+        </div>
+      </div>
+
+      <div class="pipe-connector" aria-hidden="true">
+        <div class="pipe-line"></div>
+        <div class="pipe-packet" id="packet-1"></div>
+      </div>
+
+      <!-- Stage 2: Transform -->
+      <div class="pipe-stage" data-stage="2">
+        <div class="pipe-stage-icon" aria-hidden="true">⚙️</div>
+        <h3 class="pipe-stage-name">Transform</h3>
+        <p class="pipe-stage-role">Data Engineering</p>
+        <ul class="pipe-stage-steps">
+          <li>Null / missing value imputation (linear interpolation)</li>
+          <li>Time-series alignment &amp; resampling (annual)</li>
+          <li>Unit normalisation &amp; type casting</li>
+          <li>Outlier flagging before modelling</li>
+        </ul>
+        <div class="pipe-stage-metric">
+          <span class="pipe-metric-val" id="pm-nulls">0</span>
+          <span class="pipe-metric-label">Nulls imputed</span>
+        </div>
+      </div>
+
+      <div class="pipe-connector" aria-hidden="true">
+        <div class="pipe-line"></div>
+        <div class="pipe-packet" id="packet-2"></div>
+      </div>
+
+      <!-- Stage 3: Model -->
+      <div class="pipe-stage" data-stage="3">
+        <div class="pipe-stage-icon" aria-hidden="true">🧠</div>
+        <h3 class="pipe-stage-name">Model</h3>
+        <p class="pipe-stage-role">Data Science</p>
+        <ul class="pipe-stage-steps">
+          <li>Holt-Winters forecasting (α, β smoothing)</li>
+          <li>Pearson correlation matrix computation</li>
+          <li>Z-score &amp; IQR anomaly detection</li>
+          <li>CAGR &amp; volatility statistics</li>
+        </ul>
+        <div class="pipe-stage-metric">
+          <span class="pipe-metric-val" id="pm-models">0</span>
+          <span class="pipe-metric-label">Models executed</span>
+        </div>
+      </div>
+
+      <div class="pipe-connector" aria-hidden="true">
+        <div class="pipe-line"></div>
+        <div class="pipe-packet" id="packet-3"></div>
+      </div>
+
+      <!-- Stage 4: Output -->
+      <div class="pipe-stage" data-stage="4">
+        <div class="pipe-stage-icon" aria-hidden="true">📊</div>
+        <h3 class="pipe-stage-name">Output</h3>
+        <p class="pipe-stage-role">Visualisation</p>
+        <ul class="pipe-stage-steps">
+          <li>Chart.js responsive rendering</li>
+          <li>SVG heatmap generation</li>
+          <li>Anomaly markers &amp; confidence bands</li>
+          <li>Statistical summary cards</li>
+        </ul>
+        <div class="pipe-stage-metric">
+          <span class="pipe-metric-val" id="pm-charts">0</span>
+          <span class="pipe-metric-label">Charts rendered</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live pipeline log -->
+    <div class="pipeline-log-panel panel">
+      <div class="log-header">
+        <h3 class="panel-title">Live Pipeline Log</h3>
+        <button class="btn btn-ghost btn-sm" id="clear-log-btn">Clear</button>
+      </div>
+      <div class="log-body" id="pipeline-log" role="log" aria-live="polite" aria-label="Pipeline activity log">
+        <p class="log-entry log-info">PulseGrid ETL engine initialised. Awaiting instructions…</p>
+      </div>
+    </div>
+
+    <!-- Tech stack -->
+    <div class="tech-stack-row">
+      <h3 class="tech-stack-title">Technology Stack</h3>
+      <div class="tech-pills">
+        <span class="tech-pill">Vanilla JS ES2023</span>
+        <span class="tech-pill">Chart.js 4</span>
+        <span class="tech-pill">World Bank REST API</span>
+        <span class="tech-pill">IndexedDB Cache</span>
+        <span class="tech-pill">Holt-Winters Smoothing</span>
+        <span class="tech-pill">Pearson Correlation</span>
+        <span class="tech-pill">Z-Score Detection</span>
+        <span class="tech-pill">IQR Fence</span>
+        <span class="tech-pill">Linear Interpolation</span>
+        <span class="tech-pill">CSS Grid + Flexbox</span>
+        <span class="tech-pill">IntersectionObserver</span>
+        <span class="tech-pill">ResizeObserver</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ABOUT / ATTRIBUTION
+═══════════════════════════════════════════ -->
+<section class="about-band">
+  <div class="container">
+    <div class="about-band-inner">
+      <div class="about-band-text">
+        <span class="eyebrow">Built by EDON</span>
+        <h2 class="about-band-title">Intelligence Engineered<br/>from First Principles</h2>
+        <p>PulseGrid is a case study in browser-native data science and engineering — zero backend, full transparency. Every computation is observable, every pipeline stage is documented.</p>
+        <div class="about-band-links">
+          <a href="https://edon-tech.netlify.app/case-studies.html" class="btn btn-primary" target="_blank" rel="noopener noreferrer">View Case Study ↗</a>
+          <a href="https://edon-tech.netlify.app" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">EDON Website</a>
+        </div>
+      </div>
+      <div class="about-band-stats">
+        <div class="ab-stat"><span class="ab-val" id="final-requests">0</span><span class="ab-label">API Requests This Session</span></div>
+        <div class="ab-stat"><span class="ab-val" id="final-nulls">0</span><span class="ab-label">Nulls Imputed</span></div>
+        <div class="ab-stat"><span class="ab-val" id="final-models">0</span><span class="ab-label">Models Executed</span></div>
+        <div class="ab-stat"><span class="ab-val" id="final-charts">0</span><span class="ab-label">Charts Rendered</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-brand" aria-label="PulseGrid Home">
+          <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:24px;height:24px;">
+            <rect x="2" y="16" width="4" height="14" rx="1" fill="currentColor" opacity="0.4"/>
+            <rect x="8" y="10" width="4" height="20" rx="1" fill="currentColor" opacity="0.65"/>
+            <rect x="14" y="4" width="4" height="26" rx="1" fill="currentColor"/>
+            <rect x="20" y="11" width="4" height="19" rx="1" fill="currentColor" opacity="0.65"/>
+            <rect x="26" y="18" width="4" height="12" rx="1" fill="currentColor" opacity="0.4"/>
+          </svg>
+          <span class="nav-brand-text">PulseGrid</span>
+        </a>
+        <p class="footer-tagline">Real-Time Economic Intelligence.<br/>Engineered from First Principles.</p>
+      </div>
+      <div class="footer-meta">
+        <p>Data source: <a href="https://data.worldbank.org" target="_blank" rel="noopener noreferrer">World Bank Open Data</a> · <a href="https://datacatalog.worldbank.org/public-licenses" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
+        <p>Built by <a href="https://edon-tech.netlify.app" target="_blank" rel="noopener noreferrer">EDON</a> · John Edoh Onuh · © 2026</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/pipeline.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
