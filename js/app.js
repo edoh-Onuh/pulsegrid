@@ -5,6 +5,8 @@
 
 'use strict';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 window.PG = window.PG || {};
 
 /* ============================================================
@@ -170,7 +172,7 @@ function initDashboard() {
   const fromEl = document.getElementById('year-from');
   const toEl   = document.getElementById('year-to');
   if (fromEl) fromEl.value = 1990;
-  if (toEl)   toEl.value   = 2023;
+  if (toEl)   toEl.value   = CURRENT_YEAR;
 }
 
 async function loadDashboardData() {
@@ -185,7 +187,7 @@ async function loadDashboardData() {
   const country   = countryEl.value;
   const indicator = indicatorEl.value;
   const from      = parseInt(fromEl?.value || 1990);
-  const to        = parseInt(toEl?.value   || 2023);
+  const to        = parseInt(toEl?.value   || CURRENT_YEAR);
 
   if (!country || !indicator) return;
 
@@ -311,7 +313,7 @@ async function runForecast() {
   if (emptyEl) emptyEl.classList.add('hidden');
 
   try {
-    const series = await PG.fetchWorldBank(country, indicator, 1980, 2023);
+    const series = await PG.fetchWorldBank(country, indicator, 1980, CURRENT_YEAR);
     if (series.length < 5) {
       showEmpty('forecast', 'Not enough data points for forecasting (need ≥ 5).');
       return;
@@ -379,7 +381,7 @@ async function runCorrelation() {
   if (emptyEl) emptyEl.classList.add('hidden');
 
   try {
-    const results = await PG.fetchMultiIndicator(country, indicators, 1990, 2023);
+    const results = await PG.fetchMultiIndicator(country, indicators, 1990, CURRENT_YEAR);
     const datasets = results.map((r, i) => ({
       indicator: indicators[i],
       label: shortenLabel(r.label),
@@ -463,7 +465,7 @@ async function runAnomaly() {
   if (emptyEl) emptyEl.classList.add('hidden');
 
   try {
-    const series = await PG.fetchWorldBank(country, indicator, 1980, 2023);
+    const series = await PG.fetchWorldBank(country, indicator, 1980, CURRENT_YEAR);
     if (series.length < 4) {
       showEmpty('anomaly', 'Not enough data for anomaly detection.');
       return;
@@ -579,7 +581,7 @@ async function runCompare() {
 
   try {
     const codes = compareState.countries.map(c => c.code);
-    const results = await PG.fetchMultiCountry(codes, indicator, 1990, 2023);
+    const results = await PG.fetchMultiCountry(codes, indicator, 1990, CURRENT_YEAR);
 
     const datasets = results.map((r, i) => ({
       country: compareState.countries[i]?.name || r.country,

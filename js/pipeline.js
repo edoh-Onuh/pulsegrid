@@ -13,9 +13,10 @@ PG.metrics = { requests: 0, nulls: 0, models: 0, charts: 0 };
 /* ── Constants ───────────────────────────────────────────── */
 const API_BASE   = 'https://api.worldbank.org/v2';
 const CACHE_NAME = 'pulsegrid-v1';
-const CACHE_TTL  = 86400 * 1000; // 24 h
+const CACHE_TTL  = 21600 * 1000; // 6 h (fresher live data)
 const MAX_RETRY  = 3;
 const RETRY_DELAY_MS = 1200;
+const CURRENT_YEAR = new Date().getFullYear();
 
 /* Indicator catalogue */
 PG.INDICATORS = {
@@ -145,7 +146,7 @@ async function fetchPage(url, attempt = 1) {
 }
 
 /* ── Main World Bank fetch (paginated) ───────────────────── */
-PG.fetchWorldBank = async function(countryCode, indicatorCode, fromYear = 1990, toYear = 2023) {
+PG.fetchWorldBank = async function(countryCode, indicatorCode, fromYear = 1990, toYear = CURRENT_YEAR) {
   const key = `wb_${countryCode}_${indicatorCode}_${fromYear}_${toYear}`;
 
   // Try cache
@@ -167,7 +168,7 @@ PG.fetchWorldBank = async function(countryCode, indicatorCode, fromYear = 1990, 
   updateAPIStatus('loading');
 
   const url = `${API_BASE}/country/${countryCode}/indicator/${indicatorCode}`
-    + `?format=json&per_page=500&date=${fromYear}:${toYear}&mrv=50`;
+    + `?format=json&per_page=500&date=${fromYear}:${toYear}&source=2`;
 
   let allData = [];
   try {
