@@ -5,8 +5,6 @@
 
 'use strict';
 
-const CURRENT_YEAR = new Date().getFullYear();
-
 window.PG = window.PG || {};
 
 /* ============================================================
